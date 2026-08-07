@@ -37,6 +37,9 @@ async def publish_handler(
     if not user:
         return
 
+    if message.text and message.text.startswith("/"):
+        return
+
     if await db.is_blocked(user.id):
         await message.answer(get_block_message(), reply_markup=proposal_keyboard())
         return

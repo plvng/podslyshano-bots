@@ -17,6 +17,7 @@ if str(SRC_DIR) not in sys.path:
 from common.config import get_settings
 from common.db.repository import Database
 from common.middleware.subscription import SubscriptionMiddleware
+from proposal_bot.handlers.admin_actions import router as admin_actions_router
 from proposal_bot.handlers.mode import router as mode_router
 from proposal_bot.handlers.panel import router as panel_router
 from proposal_bot.handlers.publish import router as publish_router
@@ -42,10 +43,13 @@ async def main() -> None:
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     dispatcher = Dispatcher()
-    dispatcher.message.middleware(SubscriptionMiddleware(skip_commands=("/start", "/panel")))
+    dispatcher.message.middleware(
+        SubscriptionMiddleware(skip_commands=("/start", "/panel", "/stats", "/ban", "/unban"))
+    )
 
     dispatcher.include_router(start_router)
     dispatcher.include_router(panel_router)
+    dispatcher.include_router(admin_actions_router)
     dispatcher.include_router(mode_router)
     dispatcher.include_router(support_router)
     dispatcher.include_router(publish_router)

@@ -17,7 +17,10 @@ router = Router(name="support")
 
 async def notify_admins_new_support(bot: Bot, thread_id: int, user_id: int) -> None:
     settings = get_settings()
-    text = f"Новое обращение #{thread_id} от пользователя {user_id}"
+    text = (
+        f"Новое обращение #{thread_id} от пользователя {user_id}.\n"
+        "Открой /panel → Обращения"
+    )
     for admin_id in settings.admins:
         try:
             await bot.send_message(admin_id, text)
