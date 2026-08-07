@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Публикации</h1>
+<div class="card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-800 text-slate-300">
+      <tr>
+        <th class="text-left p-3">ID</th>
+        <th class="text-left p-3">Автор</th>
+        <th class="text-left p-3">Превью</th>
+        <th class="text-left p-3">Время</th>
+        <th class="text-left p-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr class="border-t border-slate-700">
+        <td class="p-3">#{{ post.id }}</td>
+        <td class="p-3">
+          <div class="font-mono">{{ post.user_id }}</div>
+          <div class="text-slate-400">@{{ post.username or '—' }} · {{ post.full_name or '—' }}</div>
+        </td>
+        <td class="p-3 max-w-md truncate">{{ post.preview }}</td>
+        <td class="p-3 text-slate-400">{{ post.created_at }}</td>
+        <td class="p-3">
+          <a href="/users/{{ post.user_id }}" class="text-pink-300 hover:underline mr-3">Профиль</a>
+          <form method="post" action="/users/{{ post.user_id }}/block" class="inline">
+            <button class="text-red-300 hover:underline">Бан</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="p-6 text-slate-400">Публикаций пока нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

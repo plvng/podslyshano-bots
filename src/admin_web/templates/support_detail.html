@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-bold">Обращение #{{ thread.id }}</h1>
+  {% if thread.status == 'open' %}
+  <form method="post" action="/support/{{ thread.id }}/close">
+    <button class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600">Закрыть тикет</button>
+  </form>
+  {% endif %}
+</div>
+<div class="card p-4 mb-6">
+  <div class="font-mono text-lg">{{ thread.user_id }}</div>
+  <div class="text-slate-400">@{{ thread.username or '—' }} · {{ thread.full_name or '—' }}</div>
+  <form method="post" action="/users/{{ thread.user_id }}/block" class="mt-3">
+    <button class="text-red-300 hover:underline">Заблокировать пользователя</button>
+  </form>
+</div>
+<div class="card p-4 mb-6 space-y-4 max-h-[50vh] overflow-y-auto">
+  {% for msg in messages %}
+  <div class="{% if msg.direction == 'admin' %}text-right{% endif %}">
+    <div class="inline-block max-w-xl px-4 py-2 rounded-xl {% if msg.direction == 'admin' %}bg-pink-900/40{% else %}bg-slate-800{% endif %}">
+      <div class="text-xs text-slate-400 mb-1">{{ msg.direction }} · {{ msg.created_at }}</div>
+      <div>{{ msg.preview }}</div>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-slate-400">Сообщений пока нет</div>
+  {% endfor %}
+</div>
+{% if thread.status == 'open' %}
+<form method="post" action="/support/{{ thread.id }}/reply" class="card p-4 flex gap-3">
+  <input name="text" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2" placeholder="Ответ пользователю..." required>
+  <button class="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-500">Отправить</button>
+</form>
+{% endif %}
+{% endblock %}

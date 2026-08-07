@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import re
 import sys
 from pathlib import Path
 
@@ -18,13 +17,11 @@ if str(SRC_DIR) not in sys.path:
 from common.config import get_settings
 from common.db.repository import Database
 from common.middleware.subscription import SubscriptionMiddleware
-from proposal_bot.handlers.admin_block import router as admin_block_router
-from proposal_bot.handlers.admin_reply import router as admin_reply_router
+from proposal_bot.handlers.mode import router as mode_router
+from proposal_bot.handlers.panel import router as panel_router
+from proposal_bot.handlers.publish import router as publish_router
 from proposal_bot.handlers.start import router as start_router
-from proposal_bot.handlers.user_bad import router as user_bad_router
-from proposal_bot.handlers.user_blocked import router as user_blocked_router
-from proposal_bot.handlers.user_post import router as user_post_router
-from proposal_bot.handlers.user_support import router as user_support_router
+from proposal_bot.handlers.support import router as support_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,24 +42,20 @@ async def main() -> None:
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     dispatcher = Dispatcher()
-    dispatcher["db"] = db
-    dispatcher["redis_client"] = redis_client
-
-    dispatcher.message.middleware(SubscriptionMiddleware(skip_commands=("/start",)))
+    dispatcher.message.middleware(SubscriptionMiddleware(skip_commands=("/start", "/panel")))
 
     dispatcher.include_router(start_router)
-    dispatcher.include_router(user_bad_router)
-    dispatcher.include_router(user_post_router)
-    dispatcher.include_router(user_blocked_router)
-    dispatcher.include_router(user_support_router)
-    dispatcher.include_router(admin_reply_router)
-    dispatcher.include_router(admin_block_router)
+    dispatcher.include_router(panel_router)
+    dispatcher.include_router(mode_router)
+    dispatcher.include_router(support_router)
+    dispatcher.include_router(publish_router)
 
     logger.info("Proposal bot started")
     try:
         await dispatcher.start_polling(bot, db=db, redis_client=redis_client)
     finally:
         await redis_client.aclose()
+        await db.close()
         await bot.session.close()
 
 

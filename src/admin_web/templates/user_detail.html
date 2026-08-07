@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">User {{ user.user_id }}</h1>
+<div class="card p-6 mb-6">
+  <div class="text-2xl font-mono">{{ user.user_id }}</div>
+  <div class="text-slate-400 mt-1">@{{ user.username or '—' }} · {{ user.full_name or '—' }}</div>
+  <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+    <div><div class="text-2xl font-bold">{{ user.posts_count }}</div><div class="text-sm text-slate-400">постов</div></div>
+    <div><div class="text-2xl font-bold">{{ user.support_count }}</div><div class="text-sm text-slate-400">обращений</div></div>
+    <div><div class="text-2xl font-bold">{{ user.chat_count }}</div><div class="text-sm text-slate-400">чатов</div></div>
+  </div>
+  <div class="mt-6">
+    {% if user.is_blocked %}
+    <form method="post" action="/users/{{ user.user_id }}/unblock"><button class="px-4 py-2 rounded-lg bg-green-700">Разблокировать</button></form>
+    {% else %}
+    <form method="post" action="/users/{{ user.user_id }}/block"><button class="px-4 py-2 rounded-lg bg-red-700">Заблокировать</button></form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

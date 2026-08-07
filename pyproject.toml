@@ -1,7 +1,7 @@
 [project]
 name = "podslyshano-bots"
-version = "1.0.0"
-description = "Telegram bots for Подслушано: proposal bot and random chat bot"
+version = "2.0.0"
+description = "Telegram bots for Подслушано with admin web panel"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -10,6 +10,10 @@ dependencies = [
     "redis>=5.0",
     "aiosqlite>=0.20",
     "PyYAML>=6.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.12",
 ]
 
 [build-system]
@@ -17,10 +21,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/common", "src/proposal_bot", "src/chat_bot"]
+packages = ["src/common", "src/proposal_bot", "src/chat_bot", "src/admin_web"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "config.yaml" = "config.yaml"
+"src/admin_web/templates" = "admin_web/templates"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "config.yaml", "scripts", "README.md"]
+include = ["src", "config.yaml", "scripts", "deploy", "README.md"]

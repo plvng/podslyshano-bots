@@ -28,6 +28,21 @@ services:
     env_file: .env
     command: python -m chat_bot.main
     volumes:
+      - bot_data:/data
+      - ./config.yaml:/app/config.yaml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  admin-web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    command: python -m admin_web.main
+    ports:
+      - "8080:8080"
+    volumes:
+      - bot_data:/data
       - ./config.yaml:/app/config.yaml:ro
     depends_on:
       redis:

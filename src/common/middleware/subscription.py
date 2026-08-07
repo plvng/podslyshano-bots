@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Any, Awaitable, Callable
 
+import redis.asyncio as redis
 from aiogram import BaseMiddleware, Bot
 from aiogram.types import Message, TelegramObject
 
 from common.config import get_settings
-from common.subscription import check_channel_subscription
+from common.subscription_cache import check_channel_subscription
 
 Handler = Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]]
 
@@ -32,11 +33,9 @@ class SubscriptionMiddleware(BaseMiddleware):
         bot: Bot = data["bot"]
         settings = get_settings()
         user_id = event.from_user.id
+        redis_client: redis.Redis | None = data.get("redis_client")
 
-        if user_id in settings.admins:
-            return await handler(event, data)
-
-        if await check_channel_subscription(bot, settings.tgk, user_id):
+        if await check_channel_subscription(bot, settings.tgk, user_id, redis_client):
             return await handler(event, data)
 
         await bot.send_message(

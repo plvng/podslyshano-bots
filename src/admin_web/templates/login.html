@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto card p-8 mt-16">
+  <h1 class="text-2xl font-bold mb-2">Вход в админ-панель</h1>
+  <p class="text-slate-400 mb-6">Напиши боту предложки команду <code>/panel</code> и перейди по ссылке.</p>
+  {% if request.query_params.get('error') %}
+  <div class="bg-red-900/40 border border-red-700 text-red-200 px-4 py-3 rounded-lg mb-4">
+    Ссылка недействительна или уже использована.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

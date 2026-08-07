@@ -15,12 +15,11 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from common.config import get_chat_message, get_settings
+from common.db.repository import Database
 from common.middleware.subscription import SubscriptionMiddleware
-from chat_bot.handlers.admin import router as admin_router
-from chat_bot.handlers.find import router as find_router
+from chat_bot.handlers.dialog import router as dialog_router
 from chat_bot.handlers.relay import router as relay_router
 from chat_bot.handlers.start import router as start_router
-from chat_bot.handlers.stop import router as stop_router
 from chat_bot.matching import ChatMatching
 from chat_bot.message_map import MessageMap
 
@@ -32,7 +31,7 @@ logging.getLogger("aiogram.event").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-async def graceful_shutdown(bot: Bot, matching: ChatMatching, message_map: MessageMap) -> None:
+async def graceful_shutdown(bot: Bot, db: Database, matching: ChatMatching, message_map: MessageMap) -> None:
     waiting, paired = await matching.get_all_active_users()
     stop_text = get_chat_message("stop_message")
     stop_find_text = get_chat_message("stop_find_message")
@@ -51,6 +50,9 @@ async def graceful_shutdown(bot: Bot, matching: ChatMatching, message_map: Messa
         notified.add(user_id)
         if partner_id:
             notified.add(partner_id)
+        session_id = await matching.get_session_id(user_id)
+        if session_id:
+            await db.end_chat_session(session_id)
         try:
             await bot.send_message(user_id, stop_text)
         except Exception as exc:
@@ -63,22 +65,19 @@ async def graceful_shutdown(bot: Bot, matching: ChatMatching, message_map: Messa
 
 async def main() -> None:
     settings = get_settings()
+    db = Database(settings.database_path)
+    await db.init()
+
     redis_client = redis.from_url(settings.redis_url, decode_responses=True)
     matching = ChatMatching(redis_client)
     message_map = MessageMap(redis_client)
 
     bot = Bot(token=settings.chat_bot_token, default=DefaultBotProperties())
     dispatcher = Dispatcher()
-    dispatcher["matching"] = matching
-    dispatcher["message_map"] = message_map
-    dispatcher["redis_client"] = redis_client
-
     dispatcher.message.middleware(SubscriptionMiddleware(skip_commands=("/start",)))
 
     dispatcher.include_router(start_router)
-    dispatcher.include_router(find_router)
-    dispatcher.include_router(stop_router)
-    dispatcher.include_router(admin_router)
+    dispatcher.include_router(dialog_router)
     dispatcher.include_router(relay_router)
 
     shutdown_event = asyncio.Event()
@@ -94,6 +93,7 @@ async def main() -> None:
     polling_task = asyncio.create_task(
         dispatcher.start_polling(
             bot,
+            db=db,
             matching=matching,
             message_map=message_map,
             redis_client=redis_client,
@@ -107,8 +107,9 @@ async def main() -> None:
     except asyncio.CancelledError:
         pass
 
-    await graceful_shutdown(bot, matching, message_map)
+    await graceful_shutdown(bot, db, matching, message_map)
     await redis_client.aclose()
+    await db.close()
     await bot.session.close()
 
 

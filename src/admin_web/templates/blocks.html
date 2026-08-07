@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Блокировки</h1>
+<div class="card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-800 text-slate-300">
+      <tr>
+        <th class="text-left p-3">User ID</th>
+        <th class="text-left p-3">Username</th>
+        <th class="text-left p-3">Имя</th>
+        <th class="text-left p-3">Заблокирован</th>
+        <th class="text-left p-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in blocks %}
+      <tr class="border-t border-slate-700">
+        <td class="p-3 font-mono">{{ row.user_id }}</td>
+        <td class="p-3">@{{ row.username or '—' }}</td>
+        <td class="p-3">{{ row.full_name or '—' }}</td>
+        <td class="p-3 text-slate-400">{{ row.blocked_at }}</td>
+        <td class="p-3">
+          <a href="/users/{{ row.user_id }}" class="text-pink-300 mr-3">Профиль</a>
+          <form method="post" action="/users/{{ row.user_id }}/unblock" class="inline">
+            <button class="text-green-300">Разбан</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="p-6 text-slate-400">Никто не заблокирован</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

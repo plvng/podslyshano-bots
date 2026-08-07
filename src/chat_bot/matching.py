@@ -8,11 +8,15 @@ logger = logging.getLogger(__name__)
 
 WAITING_KEY = "chat:waiting"
 PAIRS_KEY = "chat:pairs"
+SESSION_KEY_PREFIX = "chat:session:"
 
 
 class ChatMatching:
     def __init__(self, redis_client: redis.Redis) -> None:
         self.redis = redis_client
+
+    def _session_key(self, user_id: int) -> str:
+        return f"{SESSION_KEY_PREFIX}{user_id}"
 
     async def is_waiting(self, user_id: int) -> bool:
         position = await self.redis.lpos(WAITING_KEY, str(user_id))
@@ -22,9 +26,29 @@ class ChatMatching:
         partner = await self.redis.hget(PAIRS_KEY, str(user_id))
         return partner is not None
 
+    async def is_active(self, user_id: int) -> bool:
+        return await self.is_waiting(user_id) or await self.is_paired(user_id)
+
     async def get_partner(self, user_id: int) -> int | None:
         partner = await self.redis.hget(PAIRS_KEY, str(user_id))
         return int(partner) if partner else None
+
+    async def get_session_id(self, user_id: int) -> int | None:
+        value = await self.redis.get(self._session_key(user_id))
+        return int(value) if value else None
+
+    async def set_session_id(self, user_id: int, partner_id: int, session_id: int) -> None:
+        async with self.redis.pipeline(transaction=True) as pipe:
+            pipe.set(self._session_key(user_id), str(session_id))
+            pipe.set(self._session_key(partner_id), str(session_id))
+            await pipe.execute()
+
+    async def clear_session_id(self, user_id: int, partner_id: int | None) -> None:
+        async with self.redis.pipeline(transaction=True) as pipe:
+            pipe.delete(self._session_key(user_id))
+            if partner_id is not None:
+                pipe.delete(self._session_key(partner_id))
+            await pipe.execute()
 
     async def add_to_waiting(self, user_id: int) -> None:
         await self.redis.rpush(WAITING_KEY, str(user_id))
@@ -73,12 +97,13 @@ class ChatMatching:
         async with self.redis.pipeline(transaction=True) as pipe:
             pipe.hdel(PAIRS_KEY, str(user_id), str(partner_id))
             await pipe.execute()
+        await self.clear_session_id(user_id, partner_id)
         logger.info("Stopped pair %s %s", user_id, partner_id)
 
     async def online_count(self) -> int:
         waiting = await self.redis.llen(WAITING_KEY)
         pairs = await self.redis.hlen(PAIRS_KEY)
-        return waiting + pairs
+        return waiting + pairs // 2
 
     async def get_all_active_users(self) -> tuple[list[int], list[int]]:
         waiting_raw = await self.redis.lrange(WAITING_KEY, 0, -1)
@@ -97,4 +122,7 @@ class ChatMatching:
         return waiting, paired
 
     async def clear_all(self) -> None:
+        keys = [key async for key in self.redis.scan_iter(match=f"{SESSION_KEY_PREFIX}*")]
+        if keys:
+            await self.redis.delete(*keys)
         await self.redis.delete(WAITING_KEY, PAIRS_KEY)

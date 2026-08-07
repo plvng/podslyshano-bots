@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Анонка — диалоги</h1>
+<div class="card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-800 text-slate-300">
+      <tr>
+        <th class="text-left p-3">#</th>
+        <th class="text-left p-3">Участник A</th>
+        <th class="text-left p-3">Участник B</th>
+        <th class="text-left p-3">Статус</th>
+        <th class="text-left p-3">Начат</th>
+        <th class="text-left p-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr class="border-t border-slate-700">
+        <td class="p-3">#{{ s.id }}</td>
+        <td class="p-3">
+          <div class="font-mono">{{ s.user_a }}</div>
+          <div class="text-slate-400">@{{ s.user_a_username or '—' }} · {{ s.user_a_name or '—' }}</div>
+        </td>
+        <td class="p-3">
+          <div class="font-mono">{{ s.user_b }}</div>
+          <div class="text-slate-400">@{{ s.user_b_username or '—' }} · {{ s.user_b_name or '—' }}</div>
+        </td>
+        <td class="p-3">{{ s.status }}</td>
+        <td class="p-3 text-slate-400">{{ s.started_at }}</td>
+        <td class="p-3"><a href="/chats/{{ s.id }}" class="text-pink-300 hover:underline">Transcript</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="p-6 text-slate-400">Диалогов пока нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

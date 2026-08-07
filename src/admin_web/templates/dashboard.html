@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  {% for label, key in [
+    ('Постов сегодня', 'posts_today'),
+    ('Постов за неделю', 'posts_week'),
+    ('Открытых обращений', 'open_support'),
+    ('Активных чатов', 'active_chats'),
+    ('Онлайн в анонке', 'online_chat'),
+    ('Пользователей', 'total_users'),
+    ('Заблокировано', 'blocked_users'),
+  ] %}
+  <div class="card p-4">
+    <div class="text-sm text-slate-400">{{ label }}</div>
+    <div class="text-3xl font-bold text-pink-300">{{ stats[key] }}</div>
+  </div>
+  {% endfor %}
+</div>
+<div class="card p-6">
+  <h2 class="text-lg font-semibold mb-4">Публикации за 7 дней</h2>
+  <div class="space-y-2">
+    {% for row in activity %}
+    <div class="flex items-center gap-3">
+      <div class="w-24 text-slate-400 text-sm">{{ row.day }}</div>
+      <div class="flex-1 bg-slate-800 rounded-full h-3">
+        <div class="bg-pink-500 h-3 rounded-full" style="width: {{ (row.count * 20) if row.count * 20 < 100 else 100 }}%"></div>
+      </div>
+      <div class="w-8 text-right">{{ row.count }}</div>
+    </div>
+    {% else %}
+    <div class="text-slate-400">Пока нет данных</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

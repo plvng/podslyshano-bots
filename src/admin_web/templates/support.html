@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Обращения</h1>
+<div class="card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-800 text-slate-300">
+      <tr>
+        <th class="text-left p-3">#</th>
+        <th class="text-left p-3">Пользователь</th>
+        <th class="text-left p-3">Статус</th>
+        <th class="text-left p-3">Открыт</th>
+        <th class="text-left p-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for thread in threads %}
+      <tr class="border-t border-slate-700">
+        <td class="p-3">#{{ thread.id }}</td>
+        <td class="p-3">
+          <div class="font-mono">{{ thread.user_id }}</div>
+          <div class="text-slate-400">@{{ thread.username or '—' }} · {{ thread.full_name or '—' }}</div>
+        </td>
+        <td class="p-3">
+          {% if thread.status == 'open' %}
+          <span class="px-2 py-1 rounded bg-green-900/40 text-green-300">open</span>
+          {% else %}
+          <span class="px-2 py-1 rounded bg-slate-700 text-slate-300">closed</span>
+          {% endif %}
+        </td>
+        <td class="p-3 text-slate-400">{{ thread.opened_at }}</td>
+        <td class="p-3"><a href="/support/{{ thread.id }}" class="text-pink-300 hover:underline">Открыть</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="p-6 text-slate-400">Обращений пока нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

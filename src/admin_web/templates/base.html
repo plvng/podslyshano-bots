@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} · Подслушано Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    body { background: #0f172a; color: #e2e8f0; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+    .nav-link { color: #94a3b8; }
+    .nav-link:hover, .nav-active { color: #f8fafc; background: #334155; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="flex min-h-screen">
+    <aside class="w-64 p-4 border-r border-slate-700 hidden md:block">
+      <div class="mb-8">
+        <div class="text-xl font-bold text-pink-400">🍭 Подслушано</div>
+        <div class="text-xs text-slate-400">Admin Panel</div>
+      </div>
+      <nav class="space-y-1">
+        <a href="/" class="nav-link block px-3 py-2 rounded-lg">Dashboard</a>
+        <a href="/posts" class="nav-link block px-3 py-2 rounded-lg">Публикации</a>
+        <a href="/support" class="nav-link block px-3 py-2 rounded-lg">Обращения</a>
+        <a href="/chats" class="nav-link block px-3 py-2 rounded-lg">Анонка</a>
+        <a href="/users" class="nav-link block px-3 py-2 rounded-lg">Пользователи</a>
+        <a href="/blocks" class="nav-link block px-3 py-2 rounded-lg">Блокировки</a>
+        <a href="/logout" class="nav-link block px-3 py-2 rounded-lg text-red-300">Выход</a>
+      </nav>
+    </aside>
+    <main class="flex-1 p-6">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

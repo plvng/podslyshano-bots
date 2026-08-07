@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     config_path: str = Field(default="config.yaml", alias="CONFIG_PATH")
     block_message: str | None = Field(default=None, alias="BLOCK_MESSAGE")
     start_message: str | None = Field(default=None, alias="START_MESSAGE")
+    admin_web_url: str = Field(default="http://127.0.0.1:8080", alias="ADMIN_WEB_URL")
 
     @field_validator("admins", mode="before")
     @classmethod
@@ -82,7 +83,7 @@ def get_start_message() -> str:
     settings = get_settings()
     return settings.start_message or get_config_value(
         "start_message",
-        default="Отправь сообщение — опубликуем его анонимно в канале.",
+        default="Выбери режим кнопкой ниже. Обычное сообщение публикуется в канал анонимно.",
     )
 
 
