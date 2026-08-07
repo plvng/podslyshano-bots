@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 
 from aiogram import Bot, F, Router
+from aiogram.dispatcher.event.bases import UNHANDLED
 from aiogram.types import Message
 
 from common.config import get_block_message, get_settings
@@ -29,17 +30,18 @@ async def notify_admins_new_support(bot: Bot, thread_id: int, user_id: int) -> N
 
 
 @router.message(~F.text.in_({BTN_PUBLISH, BTN_SUPPORT}))
-async def support_handler(message: Message, bot: Bot, db: Database) -> None:
+async def support_handler(message: Message, bot: Bot, db: Database) -> object:
     user = message.from_user
     if not user:
-        return
+        return UNHANDLED
 
     if await db.is_blocked(user.id):
         await message.answer(get_block_message(), reply_markup=proposal_keyboard())
-        return
+        return None
 
     if await db.get_mode(user.id) != "support":
-        return
+        # Let publish / other routers handle this update.
+        return UNHANDLED
 
     thread_id = await db.get_or_create_open_support_thread(user.id)
     await db.add_support_message(thread_id, user.id, "user", message, message.message_id)
@@ -50,3 +52,4 @@ async def support_handler(message: Message, bot: Bot, db: Database) -> None:
         mood="good",
     )
     await notify_admins_new_support(bot, thread_id, user.id)
+    return None

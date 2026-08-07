@@ -97,7 +97,11 @@ async def render_dashboard_message(
     text = await build_dashboard_text(db, redis_client)
     markup = main_keyboard()
     if edit:
-        await message.edit_text(text, reply_markup=markup)
+        try:
+            await message.edit_text(text, reply_markup=markup)
+        except Exception:
+            # Same content — Telegram rejects "message is not modified"
+            pass
     else:
         await message.answer(text, reply_markup=markup)
 
