@@ -30,13 +30,13 @@ async def start_handler(
 
     subscribed = await check_channel_subscription(message.bot, settings.tgk, user.id, redis_client)
     if not subscribed and user.id not in settings.admins:
-        await message.answer(f"🍭Подпишись на {settings.tgk}, чтобы пользоваться ботом🍭")
+        await message.answer(f"Подпишись на {settings.tgk}, чтобы пользоваться ботом.")
         return
 
     active = await matching.is_active(user.id)
     text = (
-        f"🍭{make_hello()} Знакомства в МГУТУ от админов {settings.tgk}!\n"
-        f"{get_chat_message('idle_hint', default='Нажми «Начать диалог».')}\n"
-        "Будь осторожней!🍭"
+        f"{make_hello()} Анонимные знакомства от админов {settings.tgk}.\n"
+        f"{get_chat_message('idle_hint', default='Нажми «Начать диалог», чтобы найти собеседника.')}\n"
+        "Будь осторожен."
     )
     await message.answer(text, reply_markup=chat_keyboard(active))

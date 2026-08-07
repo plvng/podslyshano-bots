@@ -26,12 +26,16 @@ async def check_channel_subscription(
     cache_key = f"sub:{user_id}"
     if redis_client is not None:
         cached = await redis_client.get(cache_key)
+        # Only trust positive cache. A cached "0" would block users
+        # who re-subscribe within TTL — always recheck Telegram then.
         if cached == "1":
             return True
-        if cached == "0":
-            return False
 
     subscribed = await _check_subscription(bot, channel_id, user_id)
     if redis_client is not None:
-        await redis_client.setex(cache_key, CACHE_TTL, "1" if subscribed else "0")
+        if subscribed:
+            await redis_client.setex(cache_key, CACHE_TTL, "1")
+        else:
+            # Drop stale positive cache after unsubscribe; do not cache "0".
+            await redis_client.delete(cache_key)
     return subscribed

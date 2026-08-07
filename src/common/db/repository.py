@@ -73,16 +73,16 @@ class Database:
         db = await self.connect()
         cursor = await db.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
         exists = await cursor.fetchone() is not None
-        if exists:
-            await db.execute(
-                "UPDATE users SET username = ?, full_name = ? WHERE user_id = ?",
-                (username, full_name, user_id),
-            )
-        else:
-            await db.execute(
-                "INSERT INTO users (user_id, username, full_name) VALUES (?, ?, ?)",
-                (user_id, username, full_name),
-            )
+        await db.execute(
+            """
+            INSERT INTO users (user_id, username, full_name)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                username = excluded.username,
+                full_name = excluded.full_name
+            """,
+            (user_id, username, full_name),
+        )
         await db.commit()
         return not exists
 

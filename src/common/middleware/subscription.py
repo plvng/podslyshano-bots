@@ -40,6 +40,6 @@ class SubscriptionMiddleware(BaseMiddleware):
 
         await bot.send_message(
             user_id,
-            f"🍭Подпишись на {settings.tgk}, чтобы пользоваться ботом🍭",
+            f"Подпишись на {settings.tgk}, чтобы пользоваться ботом.",
         )
         return None

@@ -50,8 +50,13 @@ async def reply_with_effect(
     *,
     mood: str,
     reply: bool = True,
+    reply_markup=None,
 ) -> Message:
-    kwargs = {"message_effect_id": effect} if (effect := pick_effect(mood)) else {}
+    kwargs: dict = {}
+    if effect := pick_effect(mood):
+        kwargs["message_effect_id"] = effect
+    if reply_markup is not None:
+        kwargs["reply_markup"] = reply_markup
     if reply:
         return await message.reply(text, **kwargs)
     return await message.answer(text, **kwargs)

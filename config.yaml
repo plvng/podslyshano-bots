@@ -93,11 +93,11 @@ proposal:
   publish_mode_hint: "Режим публикации. Отправь сообщение — опубликуем в канал анонимно."
 
 chat:
-  stop_message: "🍭РАЗГОВОР ОКОНЧЕН🍭"
-  find_message: "🍭ИЩЕМ ЖДИ🍭"
-  stop_find_message: "🍭ПОИСК ЗАВЕРШЕН🍭"
-  find_message_2: "🍭ВСЕ ЕЩЕ ИЩЕМ ЖДИ🍭"
-  found_message: "🍭РАЗГОВОР НАЧАТ🍭"
-  premium_message: "🍭ПРЕМИУМ РЕАКЦИИ НЕ ОТПРАВЯТСЯ(🍭"
-  find_pair_message: "🍭ТЫ УЖЕ БЕСЕДУЕШЬ>🍭"
+  stop_message: "Диалог завершён."
+  find_message: "Ищем собеседника, подожди…"
+  stop_find_message: "Поиск остановлен."
+  find_message_2: "Всё ещё ищем, подожди…"
+  found_message: "Собеседник найден. Можешь писать."
+  premium_message: "Премиум-реакции не отправятся."
+  find_pair_message: "Ты уже в диалоге."
   idle_hint: "Нажми «Начать диалог», чтобы найти собеседника."

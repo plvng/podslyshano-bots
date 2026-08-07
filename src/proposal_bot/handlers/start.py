@@ -3,14 +3,14 @@ from __future__ import annotations
 import logging
 
 import redis.asyncio as redis
-from aiogram import Bot, F, Router
+from aiogram import Bot, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-from common.config import get_block_message, get_config_value, get_settings, get_start_message
+from common.config import get_block_message, get_settings, get_start_message
 from common.db.repository import Database
 from common.greetings import make_hello
-from common.keyboards import BTN_PUBLISH, BTN_SUPPORT, proposal_keyboard
+from common.keyboards import proposal_keyboard
 from common.subscription_cache import check_channel_subscription
 from proposal_bot.services.reactions import reply_with_effect, set_good_reaction
 
@@ -35,7 +35,7 @@ async def start_handler(
 
     subscribed = await check_channel_subscription(bot, settings.tgk, user.id, redis_client)
     if not subscribed and user.id not in settings.admins:
-        await message.answer(f"🍭Подпишись на {settings.tgk}, чтобы пользоваться ботом🍭")
+        await message.answer(f"Подпишись на {settings.tgk}, чтобы пользоваться ботом.")
         return
 
     if is_new:
@@ -48,6 +48,11 @@ async def start_handler(
 
     await db.set_mode(user.id, "publish")
     text = f"{make_hello()} {get_start_message()}"
-    await reply_with_effect(message, text, mood="good", reply=False)
-    await message.answer("Режим: публикация в канал.", reply_markup=proposal_keyboard("publish"))
+    await reply_with_effect(
+        message,
+        text,
+        mood="good",
+        reply=False,
+        reply_markup=proposal_keyboard("publish"),
+    )
     await set_good_reaction(bot, message.chat.id, message.message_id)

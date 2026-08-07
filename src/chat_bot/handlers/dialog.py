@@ -26,7 +26,7 @@ async def start_dialog(
         return
 
     if not await check_channel_subscription(message.bot, settings.tgk, user.id, redis_client):
-        await message.answer(f"🍭Подпишись на {settings.tgk} ЧТОБ РАБОТАЛО🍭")
+        await message.answer(f"Подпишись на {settings.tgk}, чтобы пользоваться ботом.")
         return
 
     if await matching.is_waiting(user.id):

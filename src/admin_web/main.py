@@ -253,5 +253,7 @@ if __name__ == "__main__":
 
     import uvicorn
 
-    port = int(os.getenv("PORT", "8080"))
+    # Prefer WEB_PORT so Bothost's own PORT env cannot steal the listen port.
+    port = int(os.getenv("WEB_PORT", os.getenv("PORT", "8080")))
+    logger.info("Admin web listening on 0.0.0.0:%s", port)
     uvicorn.run(app, host="0.0.0.0", port=port)

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-BTN_PUBLISH = "📢 Опубликовать в канал"
-BTN_SUPPORT = "💬 Написать админам"
-BTN_START_CHAT = "🍭 Начать диалог"
-BTN_STOP_CHAT = "🍭 Закончить диалог"
+BTN_PUBLISH = "Опубликовать в канал"
+BTN_SUPPORT = "Написать админам"
+BTN_START_CHAT = "Начать диалог"
+BTN_STOP_CHAT = "Закончить диалог"
 
 
 def proposal_keyboard(mode: str = "publish") -> ReplyKeyboardMarkup:
