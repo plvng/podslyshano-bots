@@ -1,0 +1,41 @@
+keywords:
+  - помощь
+  - админ
+  - support
+
+badwords:
+  - админ
+  - модер
+
+block_message: "Ты заблокирован и не можешь публиковать сообщения."
+start_message: "Отправь сообщение — опубликуем его анонимно в канале. Для связи с админами напиши «помощь» или ответь на их сообщение."
+
+emoji:
+  good:
+    - "👍"
+    - "❤"
+    - "🔥"
+  bad:
+    - "👎"
+    - "💩"
+
+effect:
+  good:
+    - "5104841245750840584"
+  bad:
+    - "5104841245750840584"
+
+chat:
+  stop_message: "🍭РАЗГОВОР ОКОНЧЕН🍭"
+  find_message: "🍭ИЩЕМ ЖДИ🍭"
+  stop_find_message: "🍭ПОИСК ЗАВЕРШЕН🍭"
+  find_message_2: "🍭ВСЕ ЕЩЕ ИЩЕМ ЖДИ🍭"
+  found_message: "🍭РАЗГОВОР НАЧАТ🍭"
+  premium_message: "🍭ПРЕМИУМ РЕАКЦИИ НЕ ОТПРАВЯТСЯ(🍭"
+  find_pair_message: "🍭ТЫ УЖЕ БЕСЕДУЕШЬ>🍭"
+  contact_message: "🍭НАЖМИ НА КНОПКУ🍭"
+  contact_button: "даю свой контакт собеседнику"
+  online_message: "🍭ОНЛАЙН: 🍭"
+
+proposal:
+  rate_limit_seconds: 30
