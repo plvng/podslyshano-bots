@@ -1,5 +1,3 @@
-# Bothost Pro: all-in-one (Redis + proposal-bot + chat-bot + admin-web)
-# VPS / docker-compose uses Dockerfile.vps instead.
 FROM python:3.12-slim
 
 WORKDIR /app

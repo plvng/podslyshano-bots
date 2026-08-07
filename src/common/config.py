@@ -3,17 +3,23 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import yaml
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BeforeValidator, Field, model_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
-def _parse_int_list(value: str | list[int]) -> list[int]:
+def _parse_admins(value: Any) -> list[int]:
+    if value is None or value == "":
+        return []
+    if isinstance(value, int):
+        return [value]
     if isinstance(value, list):
         return [int(item) for item in value]
-    return [int(item.strip()) for item in value.split(",") if item.strip()]
+    if isinstance(value, str):
+        return [int(item.strip()) for item in value.split(",") if item.strip()]
+    raise ValueError(f"Invalid ADMINS value: {value}")
 
 
 class Settings(BaseSettings):
@@ -26,7 +32,10 @@ class Settings(BaseSettings):
     proposal_bot_token: str = Field(alias="PROPOSAL_BOT_TOKEN")
     chat_bot_token: str = Field(alias="CHAT_BOT_TOKEN")
     tgk: str = Field(alias="TGK")
-    admins: list[int] = Field(default_factory=list, alias="ADMINS")
+    admins: Annotated[list[int], BeforeValidator(_parse_admins), NoDecode] = Field(
+        default_factory=list,
+        alias="ADMINS",
+    )
     redis_url: str = Field(default="redis://redis:6379/0", alias="REDIS_URL")
     database_path: str = Field(default="/data/bots.db", alias="DATABASE_PATH")
     msk_offset: int = Field(default=3, alias="MSK_OFFSET")
@@ -35,12 +44,19 @@ class Settings(BaseSettings):
     start_message: str | None = Field(default=None, alias="START_MESSAGE")
     admin_web_url: str = Field(default="http://127.0.0.1:8080", alias="ADMIN_WEB_URL")
 
-    @field_validator("admins", mode="before")
-    @classmethod
-    def parse_admins(cls, value: Any) -> list[int]:
-        if value is None or value == "":
-            return []
-        return _parse_int_list(value)
+    @model_validator(mode="after")
+    def apply_platform_defaults(self) -> "Settings":
+        domain = os.getenv("DOMAIN", "").strip()
+        if domain and self.admin_web_url in ("http://127.0.0.1:8080", ""):
+            self.admin_web_url = f"https://{domain.rstrip('/')}"
+
+        if Path("/app/data").is_dir() and self.database_path == "/data/bots.db":
+            self.database_path = "/app/data/bots.db"
+
+        if Path("/app/data").is_dir() and self.redis_url == "redis://redis:6379/0":
+            self.redis_url = "redis://127.0.0.1:6379/0"
+
+        return self
 
 
 @lru_cache

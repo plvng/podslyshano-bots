@@ -10,7 +10,6 @@ from common.config import get_block_message, get_settings
 from common.db.repository import Database
 from common.greetings import make_hello
 from common.keyboards import BTN_PUBLISH, BTN_SUPPORT, proposal_keyboard
-from proposal_bot.handlers.start import check_rate_limit
 from proposal_bot.services.reactions import reply_with_effect, set_good_reaction
 
 logger = logging.getLogger(__name__)

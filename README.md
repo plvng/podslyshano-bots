@@ -26,33 +26,40 @@ Telegram-боты «Подслушано»: предложка, анонимны
 ## Админка
 
 1. Напиши боту предложки: `/panel`
-2. Перейди по ссылке `http://<VM_IP>:8080/auth?token=...`
+2. Перейди по ссылке `https://<домен>/auth?token=...` (Bothost) или `http://<IP>:8080/auth?token=...` (VPS)
 3. В панели: dashboard, публикации, обращения, чаты, пользователи, блокировки
 
-## Быстрый старт
+## Bothost Pro (рекомендуется)
+
+Один контейнер: Redis + оба бота + админка. Подробно: [deploy/bothost/README.md](deploy/bothost/README.md)
+
+```text
+Git: https://github.com/plvng/podslyshano-bots
+Dockerfile: корневой Dockerfile (bothost)
+Foreign IP: включить в профиле Bothost
+```
+
+## VPS / Docker Compose
 
 ```bash
 cp .env.example .env
-# заполни токены, TGK, ADMINS, ADMIN_WEB_URL=http://<IP>:8080
+# заполни токены, TGK, ADMINS, ADMIN_WEB_URL
 
 docker compose up -d --build
 bash scripts/healthcheck.sh
 ```
 
-## Yandex Cloud
+Используется `Dockerfile.vps` (отдельные контейнеры + Redis).
 
-1. VM: Ubuntu 22.04, 2 vCPU / 2 GB, 15 GB SSD, `ru-central1-a`
-2. Security Group: порты **22**, **8080** (8080 лучше ограничить IP админов)
-3. На VM:
+## Yandex Cloud / другой VPS
 
-```bash
-bash deploy/yandex-setup.sh
-cp .env.example .env && nano .env
-docker compose up -d --build
-sudo systemctl start podslyshano-bots
-```
+1. VM: Ubuntu 24.04, 2 vCPU / 2 GB
+2. Порты **22**, **8080**
+3. `bash deploy/yandex-setup.sh` → `.env` → `docker compose up -d --build`
 
-## Миграция
+> Telegram Bot API с российских облаков (Yandex, Selectel) часто заблокирован. Bothost с foreign IP или VPS за рубежом надёжнее.
+
+## Миграция legacy
 
 ```bash
 docker compose run --rm \
@@ -70,9 +77,9 @@ docker compose run --rm \
 | `CHAT_BOT_TOKEN` | Токен бота анонки |
 | `TGK` | Канал (`@channel` или `-100...`) |
 | `ADMINS` | 2 admin user id через запятую |
-| `ADMIN_WEB_URL` | `http://<VM_IP>:8080` |
+| `ADMIN_WEB_URL` | URL админки (Bothost: auto из `DOMAIN`) |
 | `REDIS_URL` | Redis URL |
-| `DATABASE_PATH` | `/data/bots.db` |
+| `DATABASE_PATH` | Путь к SQLite (`/app/data/bots.db` на Bothost) |
 
 ## Структура
 
@@ -82,4 +89,6 @@ src/
 ├── proposal_bot/
 ├── chat_bot/
 └── admin_web/    # FastAPI + Jinja2 panel
+deploy/
+└── bothost/      # all-in-one для Bothost Pro
 ```

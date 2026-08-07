@@ -54,6 +54,8 @@ class Database:
             Path(self.database_path).parent.mkdir(parents=True, exist_ok=True)
             self._connection = await aiosqlite.connect(self.database_path)
             self._connection.row_factory = aiosqlite.Row
+            await self._connection.execute("PRAGMA journal_mode=WAL")
+            await self._connection.execute("PRAGMA busy_timeout=5000")
             await self._connection.executescript(SCHEMA)
             await self._connection.commit()
         return self._connection

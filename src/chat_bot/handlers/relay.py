@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 
 from aiogram import F, Router
-from aiogram.filters import Command
 from aiogram.types import Message, MessageReactionUpdated, ReplyKeyboardRemove
 
 from common.config import get_chat_message, get_settings
@@ -45,13 +44,15 @@ async def reaction_handler(
         await event.bot.send_message(user.id, get_chat_message("premium_message"))
 
 
-@router.message(~Command(), ~F.text.in_({BTN_START_CHAT, BTN_STOP_CHAT}))
+@router.message(~F.text.in_({BTN_START_CHAT, BTN_STOP_CHAT}))
 async def relay_handler(
     message: Message,
     db: Database,
     matching: ChatMatching,
     message_map: MessageMap,
 ) -> None:
+    if message.text and message.text.startswith("/"):
+        return
     user = message.from_user
     if not user:
         return
